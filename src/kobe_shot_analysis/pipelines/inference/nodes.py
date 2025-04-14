@@ -14,8 +14,6 @@ def apply_model(prod_df: pd.DataFrame, dropna: bool = True):
     """
     Carrega o modelo (do disco ou MLflow), aplica ao dataset de produção
     e registra métricas se tiver 'shot_made_flag'.
-
-    Não chamamos start_run() aqui, pois kedro-mlflow já mantém a run ativa.
     """
     # Remover nulos
     if dropna:
@@ -26,11 +24,9 @@ def apply_model(prod_df: pd.DataFrame, dropna: bool = True):
     # Carregar modelo final salvo por train_models
     model = load_model("data/06_models/best_model_kedro")
 
-
     # Fazer predições
     scored_df = predict_model(model, data=prod_df)
 
-    # Se tiver a variável de resposta, registrar métricas
     if "shot_made_flag" in scored_df.columns:
         y_true = scored_df["shot_made_flag"]
         y_pred = scored_df["prediction_label"]

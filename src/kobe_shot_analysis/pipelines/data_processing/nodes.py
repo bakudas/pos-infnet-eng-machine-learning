@@ -9,9 +9,6 @@ import mlflow
 from sklearn.model_selection import train_test_split
 
 def process_data(df: pd.DataFrame, test_size: float=0.2, random_state: int=42):
-    # Antes: with mlflow.start_run(run_name="PreparacaoDados"):
-    # AGORA: não chama start_run, pois kedro-mlflow já iniciou a run
-
     # 1) Remover nulos e selecionar colunas
     df = df.dropna(subset=["lat", "lon", "minutes_remaining",
                            "period", "playoffs", "shot_distance", "shot_made_flag"])

@@ -14,8 +14,6 @@ def train_models(train_df):
     1) Faz setup do PyCaret.
     2) Treina Logistic Regression e Decision Tree.
     3) Finaliza cada modelo.
-    4) (Opcional) Salva manualmente com PyCaret e mlflow.log_artifact(),
-       mas também retornamos os objetos Python para o Kedro salvá-los via PickleDataSet.
     """
     setup(
         data=train_df,
@@ -28,7 +26,6 @@ def train_models(train_df):
     lr = create_model("lr")
     lr_final = finalize_model(lr)
 
-    # Podemos salvar via PyCaret + MLflow se quiser:
     save_model(lr_final, "lr_model")
     mlflow.log_artifact("lr_model.pkl")
 
@@ -39,8 +36,6 @@ def train_models(train_df):
     save_model(dt_final, "dt_model")
     mlflow.log_artifact("dt_model.pkl")
 
-    # Retornamos os objetos em Python, que o Kedro depois vai salvar em disco
-    # nos outputs: ["trained_lr_model", "trained_dt_model"]
     return lr_final, dt_final
 
 
@@ -51,9 +46,6 @@ def evaluate_models(lr_model, dt_model, test_df, raw_score=True):
     """
     preds_lr = predict_model(lr_model, data=test_df)
     preds_dt = predict_model(dt_model, data=test_df)
-
-    # A coluna de score é 'Score' quando raw_score=False e 'Score_1' quando raw_score=True
-    score_col = "Score" if not raw_score else "Score_1"
 
     ll_lr = log_loss(preds_lr["shot_made_flag"], preds_lr["prediction_score"])
     f1_lr = f1_score(preds_lr["shot_made_flag"], preds_lr["prediction_label"])
