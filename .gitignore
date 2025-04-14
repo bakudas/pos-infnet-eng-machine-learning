@@ -10,7 +10,7 @@ conf/local/**
 conf/**/*credentials*
 
 # ignore everything in the following folders
-data/**
+!data/**
 
 # except their sub-folders
 !data/**/
@@ -160,3 +160,7 @@ venv.bak/
 
 # mlflow local runs
 mlruns/*
+mlruns/.trash
+mlruns/0
+mlruns/models
+!mlruns/940270966634352461/

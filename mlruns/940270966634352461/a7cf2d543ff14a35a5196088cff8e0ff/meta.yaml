@@ -1,0 +1,15 @@
+artifact_uri: file:///home/bakudas/code/INFNET_POS/pos-infnet-eng-machine-learning/kobe-shot-analysis/mlruns/940270966634352461/a7cf2d543ff14a35a5196088cff8e0ff/artifacts
+end_time: 1744651896822
+entry_point_name: ''
+experiment_id: '940270966634352461'
+lifecycle_stage: active
+run_id: a7cf2d543ff14a35a5196088cff8e0ff
+run_name: __default__
+run_uuid: a7cf2d543ff14a35a5196088cff8e0ff
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1744651865668
+status: 3
+tags: []
+user_id: bakudas
