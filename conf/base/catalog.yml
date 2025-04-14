@@ -3,15 +3,15 @@
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://docs.kedro.org/en/stable/data/data_catalog.html
 
-raw_train_dev:
+dataset_kobe_dev:
     type: pandas.ParquetDataset
     filepath: data/01_raw/dataset_kobe_dev.parquet
 
-raw_train_prod:
+dataset_kobe_prod:
     type: pandas.ParquetDataset
     filepath: data/01_raw/dataset_kobe_prod.parquet
 
-dataset_filtered:
+data_filtered:
     type: pandas.ParquetDataset
     filepath: data/04_feature/data_filtered.parquet
 
@@ -23,25 +23,17 @@ base_test:
     type: pandas.ParquetDataset
     filepath: data/05_model_input/base_test.parquet
 
-treinamento_best_model:
-    type: kedro_mlflow.io.models.mlflow_model_tracking_dataset.MlflowModelTrackingDataset
-    flavor: mlflow.sklearn
-    save_args:
-        registered_model_name: treinamento_best_model
+trained_lr_model:
+  type: pickle.PickleDataset
+  filepath: data/06_models/lr_model_kedro.pkl
 
-treinamento_logistical_regression:
-    type: kedro_mlflow.io.models.mlflow_model_tracking_dataset.MlflowModelTrackingDataset
-    flavor: mlflow.sklearn
-    artifact_path: logistic_regression_model
-    save_args:
-        registered_model_name: treinamento_logistical_regression
+trained_dt_model:
+  type: pickle.PickleDataset
+  filepath: data/06_models/dt_model_kedro.pkl
 
-treinamento_decision_tree:
-    type: kedro_mlflow.io.models.mlflow_model_tracking_dataset.MlflowModelTrackingDataset
-    flavor: mlflow.sklearn
-    artifact_path: decision_tree_model
-    save_args:
-        registered_model_name: treinamento_decision_tree
+best_model:
+  type: pickle.PickleDataset
+  filepath: data/06_models/best_model_kedro.pkl
 
 split_train_size:
     type: kedro_mlflow.io.metrics.MlflowMetricDataset
@@ -58,6 +50,9 @@ base_test_dt_metrics:
 predictions:
     type: pandas.ParquetDataset
     filepath: data/07_model_output/predictions.parquet
+
+report_status:
+  type: MemoryDataset
 
 predictions_metrics:
     type: kedro_mlflow.io.metrics.MlflowMetricsHistoryDataset

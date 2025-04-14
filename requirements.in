@@ -1,7 +1,7 @@
 ipython
 jupyterlab
 kedro
-kedro-datasets[pandas, pandas.ParquetDataSet]
+kedro-datasets[pandas, pandas.ParquetDataSet, pickle.PickleDataset]
 notebook
 pyarrow
 pycaret[models,mlops]

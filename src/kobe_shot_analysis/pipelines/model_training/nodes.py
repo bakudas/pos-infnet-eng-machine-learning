@@ -2,31 +2,82 @@
 This is a boilerplate pipeline 'training'
 generated using Kedro 0.19.12
 """
-from pycaret.classification import ClassificationExperiment
-from ..utils.utils import get_model_metrics
 
-def treinamento_best_model(base_train, session_id) -> ClassificationExperiment:
-    exp = ClassificationExperiment()
-    exp.setup(data=base_train, target='shot_made_flag', session_id=session_id, use_gpu=True)
-    best_model = exp.compare_models(sort='f1')
-    return best_model
+import os
+import mlflow
+from pycaret.classification import setup, create_model, finalize_model, save_model, predict_model
+from sklearn.metrics import log_loss, f1_score, confusion_matrix, ConfusionMatrixDisplay, roc_curve, roc_auc_score
+import matplotlib.pyplot as plt
 
-def treinamento(model_name, base_train, session_id) -> ClassificationExperiment:
+def train_models(train_df):
     """
-    Train model and register in MLFlow
-    Args:
-        model_name (str): Name of the model to train ('dt', 'lr').
-        base_train (pd.DataFrame): Training dataset.
-        session_id (int): Session ID for PyCaret.
+    1) Faz setup do PyCaret.
+    2) Treina Logistic Regression e Decision Tree.
+    3) Finaliza cada modelo.
+    4) (Opcional) Salva manualmente com PyCaret e mlflow.log_artifact(),
+       mas também retornamos os objetos Python para o Kedro salvá-los via PickleDataSet.
     """
-    exp = ClassificationExperiment()
-    exp.setup(data=base_train, target='shot_made_flag', session_id=session_id, use_gpu=True)
+    setup(
+        data=train_df,
+        target="shot_made_flag",
+        session_id=42,
+        verbose=False
+    )
 
-    model = exp.create_model(model_name)
+    # Logistic Regression
+    lr = create_model("lr")
+    lr_final = finalize_model(lr)
 
-    exp.tune_model(model, n_iter=10, optimize='f1')
-    return model
+    # Podemos salvar via PyCaret + MLflow se quiser:
+    save_model(lr_final, "lr_model")
+    mlflow.log_artifact("lr_model.pkl")
 
-def get_metrics(model, dataset):
-    return get_model_metrics(model, dataset)
+    # Decision Tree
+    dt = create_model("dt")
+    dt_final = finalize_model(dt)
+
+    save_model(dt_final, "dt_model")
+    mlflow.log_artifact("dt_model.pkl")
+
+    # Retornamos os objetos em Python, que o Kedro depois vai salvar em disco
+    # nos outputs: ["trained_lr_model", "trained_dt_model"]
+    return lr_final, dt_final
+
+
+def evaluate_models(lr_model, dt_model, test_df, raw_score=True):
+    """
+    Recebe 2 modelos e a base de teste.
+    Calcula métricas e salva best_model como pkl.
+    """
+    preds_lr = predict_model(lr_model, data=test_df)
+    preds_dt = predict_model(dt_model, data=test_df)
+
+    # A coluna de score é 'Score' quando raw_score=False e 'Score_1' quando raw_score=True
+    score_col = "Score" if not raw_score else "Score_1"
+
+    ll_lr = log_loss(preds_lr["shot_made_flag"], preds_lr["prediction_score"])
+    f1_lr = f1_score(preds_lr["shot_made_flag"], preds_lr["prediction_label"])
+    mlflow.log_metric("lr_log_loss", ll_lr)
+    mlflow.log_metric("lr_f1", f1_lr)
+
+    ll_dt = log_loss(preds_dt["shot_made_flag"], preds_dt["prediction_score"])
+    f1_dt = f1_score(preds_dt["shot_made_flag"], preds_dt["prediction_label"])
+    mlflow.log_metric("dt_log_loss", ll_dt)
+    mlflow.log_metric("dt_f1", f1_dt)
+
+    if ll_lr < ll_dt:
+        best = lr_model
+        chosen = "LogisticRegression"
+    else:
+        best = dt_model
+        chosen = "DecisionTree"
+
+    mlflow.log_param("chosen_model", chosen)
+
+    # Salvar best_model via PyCaret + MLflow
+    save_model(best, "best_model")
+    mlflow.log_artifact("best_model.pkl")
+
+    # Retornar o objeto Python do melhor modelo, que Kedro salvará num .pkl
+    return best
 

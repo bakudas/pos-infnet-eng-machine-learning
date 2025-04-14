@@ -6,6 +6,7 @@ from kedro.pipeline import Pipeline
 import kobe_shot_analysis.pipelines.data_processing as data_processing
 from kobe_shot_analysis.pipelines.model_training.pipeline import create_pipeline as create_model_training_pipeline
 import kobe_shot_analysis.pipelines.application as application
+import kobe_shot_analysis.pipelines.inference as inference
 
 
 def register_pipelines() -> dict[str, Pipeline]:
@@ -20,12 +21,13 @@ def register_pipelines() -> dict[str, Pipeline]:
 
     data_processing_pipeline = data_processing.create_pipeline()
     model_training_pipeline = create_model_training_pipeline()
-    application_pipeline = application.create_pipeline()
+    inference_pipeline = inference.create_pipeline()
+    #application_pipeline = application.create_pipeline()
 
 
     return {
-        "__default__": data_processing_pipeline + model_training_pipeline + application_pipeline,
+        "__default__": data_processing_pipeline + model_training_pipeline + inference_pipeline,
         "data_processing": data_processing_pipeline,
         "model_training": model_training_pipeline,
-        "application": application_pipeline,
+        "inference": inference_pipeline,
     }

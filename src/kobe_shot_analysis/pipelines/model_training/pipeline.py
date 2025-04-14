@@ -4,33 +4,21 @@ This is a boilerplate pipeline 'training'
 generated using Kedro 0.19.12
 """
 
-from kedro.pipeline import node, Pipeline, pipeline  # noqa
-from . import nodes
+from kedro.pipeline import Pipeline, node
+from .nodes import train_models, evaluate_models
 
-def create_pipeline(**kwargs) -> Pipeline:
-    return pipeline([
-         node(
-            nodes.treinamento,
-            inputs=["params:model_lr", "base_train", "params:session_id"],
-            outputs="treinamento_logistical_regression",
-            tags=["treinamento"]
+def create_pipeline(**kwargs):
+    return Pipeline([
+        node(
+            func=train_models,
+            inputs="base_train",
+            outputs=["trained_lr_model", "trained_dt_model"],
+            name="train_models_node",
         ),
         node(
-            nodes.treinamento,
-            inputs=["params:model_dt", "base_train", "params:session_id"],
-            outputs="treinamento_decision_tree",
-            tags=["treinamento"]
+            func=evaluate_models,
+            inputs=["trained_lr_model", "trained_dt_model", "base_test"],
+            outputs="best_model",
+            name="evaluate_models_node"
         ),
-        node(
-            nodes.get_metrics,
-            inputs=["treinamento_logistical_regression", "base_test"],
-            outputs="base_test_lr_metrics",
-            tags=["metrics"]
-        ),
-        node(
-            nodes.get_metrics,
-            inputs=["treinamento_decision_tree", "base_test"],
-            outputs="base_test_dt_metrics",
-            tags=["metrics"]
-        )
     ])

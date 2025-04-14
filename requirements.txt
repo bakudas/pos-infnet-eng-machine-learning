@@ -113,6 +113,8 @@ comm==0.2.2
     # via
     #   ipykernel
     #   ipywidgets
+compress-pickle[lz4]==2.1.0
+    # via kedro-datasets
 contourpy==1.3.1
     # via matplotlib
 cookiecutter==2.6.0
@@ -405,7 +407,7 @@ kedro==0.19.12
     #   kedro-datasets
     #   kedro-mlflow
     #   kedro-telemetry
-kedro-datasets[pandas,pandas-base,pandas-csvdataset,pandas-deltatabledataset,pandas-exceldataset,pandas-featherdataset,pandas-gbqquerydataset,pandas-gbqtabledataset,pandas-genericdataset,pandas-hdfdataset,pandas-jsondataset,pandas-parquetdataset,pandas-sqlquerydataset,pandas-sqltabledataset,pandas-xmldataset,pandas.ParquetDataSet]==6.0.0
+kedro-datasets[pandas,pandas-base,pandas-csvdataset,pandas-deltatabledataset,pandas-exceldataset,pandas-featherdataset,pandas-gbqquerydataset,pandas-gbqtabledataset,pandas-genericdataset,pandas-hdfdataset,pandas-jsondataset,pandas-parquetdataset,pandas-sqlquerydataset,pandas-sqltabledataset,pandas-xmldataset,pandas.ParquetDataSet,pickle-pickledataset,pickle.PickleDataset]==6.0.0
     # via
     #   -r requirements.in
     #   kedro-mlflow
@@ -429,6 +431,8 @@ llvmlite==0.44.0
     # via numba
 lxml==4.9.4
     # via kedro-datasets
+lz4==4.4.4
+    # via compress-pickle
 m2cgen==0.10.0
     # via pycaret
 mako==1.3.10

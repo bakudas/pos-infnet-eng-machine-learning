@@ -1,18 +1,41 @@
-"""
-This is a boilerplate pipeline 'data_processing'
-generated using Kedro 0.19.12
-"""
+# src/kobe_shots/pipelines/data_processing/nodes.py
 
 import pandas as pd
+import mlflow
 from sklearn.model_selection import train_test_split
 
+import pandas as pd
+import mlflow
+from sklearn.model_selection import train_test_split
 
-def prepare_dataset(raw_train_dev) -> pd.DataFrame:
-    raw_train_dev.dropna(inplace=True)
-    raw_train_dev = raw_train_dev[['lat', 'lon', 'minutes_remaining', 'period', 'playoffs', 'shot_distance', 'shot_made_flag']]
-    return raw_train_dev
+def process_data(df: pd.DataFrame, test_size: float=0.2, random_state: int=42):
+    # Antes: with mlflow.start_run(run_name="PreparacaoDados"):
+    # AGORA: não chama start_run, pois kedro-mlflow já iniciou a run
 
-def split_dataset(dataset_filtered, session_id, test_size) -> pd.DataFrame:
-    train, test = train_test_split(dataset_filtered, test_size=test_size, random_state=session_id, stratify=dataset_filtered['shot_made_flag'])
+    # 1) Remover nulos e selecionar colunas
+    df = df.dropna(subset=["lat", "lon", "minutes_remaining",
+                           "period", "playoffs", "shot_distance", "shot_made_flag"])
 
-    return train, test, len(train), len(test)
+    cols = ["lat", "lon", "minutes_remaining", "period", "playoffs", "shot_distance", "shot_made_flag"]
+    df = df[cols]
+    mlflow.log_param("columns_used", cols)
+    mlflow.log_metric("n_rows_filtered", len(df))
+
+    # 2) Split estratificado
+    X = df.drop("shot_made_flag", axis=1)
+    y = df["shot_made_flag"]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=random_state, stratify=y
+    )
+
+    mlflow.log_param("test_size", test_size)
+    mlflow.log_metric("train_size", len(X_train))
+    mlflow.log_metric("test_size_rows", len(X_test))
+
+    train_df = X_train.copy()
+    train_df["shot_made_flag"] = y_train
+    test_df = X_test.copy()
+    test_df["shot_made_flag"] = y_test
+
+    return train_df, test_df
