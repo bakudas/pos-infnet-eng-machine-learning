@@ -1,0 +1,10 @@
+ipython
+jupyterlab
+kedro
+kedro-datasets[pandas, pandas.ParquetDataSet]
+notebook
+pyarrow
+pycaret[models,mlops]
+git+https://github.com/pycaret/pycaret.git@master
+kedro-mlflow
+streamlit

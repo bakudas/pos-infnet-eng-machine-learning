@@ -2,3 +2,68 @@
 #
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://docs.kedro.org/en/stable/data/data_catalog.html
+
+raw_train_dev:
+    type: pandas.ParquetDataset
+    filepath: data/01_raw/dataset_kobe_dev.parquet
+
+raw_train_prod:
+    type: pandas.ParquetDataset
+    filepath: data/01_raw/dataset_kobe_prod.parquet
+
+dataset_filtered:
+    type: pandas.ParquetDataset
+    filepath: data/04_feature/data_filtered.parquet
+
+base_train:
+    type: pandas.ParquetDataset
+    filepath: data/05_model_input/base_train.parquet
+
+base_test:
+    type: pandas.ParquetDataset
+    filepath: data/05_model_input/base_test.parquet
+
+treinamento_best_model:
+    type: kedro_mlflow.io.models.mlflow_model_tracking_dataset.MlflowModelTrackingDataset
+    flavor: mlflow.sklearn
+    save_args:
+        registered_model_name: treinamento_best_model
+
+treinamento_logistical_regression:
+    type: kedro_mlflow.io.models.mlflow_model_tracking_dataset.MlflowModelTrackingDataset
+    flavor: mlflow.sklearn
+    artifact_path: logistic_regression_model
+    save_args:
+        registered_model_name: treinamento_logistical_regression
+
+treinamento_decision_tree:
+    type: kedro_mlflow.io.models.mlflow_model_tracking_dataset.MlflowModelTrackingDataset
+    flavor: mlflow.sklearn
+    artifact_path: decision_tree_model
+    save_args:
+        registered_model_name: treinamento_decision_tree
+
+split_train_size:
+    type: kedro_mlflow.io.metrics.MlflowMetricDataset
+
+split_test_size:
+    type: kedro_mlflow.io.metrics.MlflowMetricDataset
+
+base_test_lr_metrics:
+    type: kedro_mlflow.io.metrics.MlflowMetricsHistoryDataset
+
+base_test_dt_metrics:
+    type: kedro_mlflow.io.metrics.MlflowMetricsHistoryDataset
+
+predictions:
+    type: pandas.ParquetDataset
+    filepath: data/07_model_output/predictions.parquet
+
+predictions_metrics:
+    type: kedro_mlflow.io.metrics.MlflowMetricsHistoryDataset
+
+roc_auc_plot:
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataset
+  dataset:
+    type: matplotlib.MatplotlibWriter
+    filepath: data/08_reporting/roc_auc_plot.png

@@ -1,0 +1,24 @@
+data_processing:
+  test_size: 0.2
+  random_state: 42
+  target_column: "shot_made_flag"
+  features:
+    - "lat"
+    - "lon"
+    - "minutes_remaining"
+    - "period"
+    - "playoffs"
+    - "shot_distance"
+
+model_training:
+  random_state: 42
+  test_size: 0.2
+  target_column: "shot_made_flag"
+  metrics:
+    - "log_loss"
+    - "f1_score"
+
+model_evaluation:
+  drift_threshold: 0.1
+  confidence_threshold: 0.8
+  monitoring_window: 1000

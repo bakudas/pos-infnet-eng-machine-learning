@@ -31,3 +31,6 @@ attr = "kobe_shot_analysis.__version__"
 [tool.setuptools.packages.find]
 where = [ "src",]
 namespaces = false
+
+[tool.kedro_telemetry]
+project_id = "d2262305804f4808bc2b50053d6d2111"

@@ -1,0 +1,10 @@
+# This is a boilerplate parameters config generated for pipeline 'model_training'
+# using Kedro 0.19.12.
+#
+# Documentation for this file format can be found in "Parameters"
+# Link: https://docs.kedro.org/en/0.19.12/configuration/parameters.html
+
+test_size: 0.2
+model_lr: 'lr'
+model_dt: 'dt'
+session_id: 11
