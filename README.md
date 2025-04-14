@@ -32,6 +32,7 @@ No decorrer do projeto, vários artefatos foram criados:
 2. Dados pré-processados
 - /data/02_intermediate/data_filtered.parquet
 - Dataset com as linhas nulas removidas e colunas selecionadas, conforme solicitado no enunciado.
+- nome da run "data_processing"
 - Log no MLflow
 
 3. Bases de treino e teste
@@ -41,18 +42,34 @@ No decorrer do projeto, vários artefatos foram criados:
 
 4. Modelos treinados
 - modelos salvos em /data/06_models/
+- nome da run "model_training"
 - dois modelos:
   - Regressão Logística (com log loss)
   - Árvore de decisão (com log loss + F1 Score)
 
-5. Previsões (inference) na base de produção
-- Ao rodar o pipeline "PipelineAplicacao", o script lê /data/01_raw/dataset_kobe_prod.parquet, carrega o modelo escolhido do MLflow e gera previsões, salvando em /data/07_model_output/
+5. Previsões na base de produção
+- Ao rodar o pipeline "inference", o script lê /data/01_raw/dataset_kobe_prod.parquet, carrega o modelo escolhido do MLflow e gera previsões, salvando em /data/07_model_output/
 - log loss e F1 Score para a nova base.
-- Nome da run no MLflow: "PipelineAplicacao".
+- Nome da run no MLflow: "inference".
+- O modelo é aderente a essa nova base? O que mudou entre uma base e outra? Justifique.
+  - O modelo treinado não é aderente a base de dados de produção. Pois os dados de produção são diferentes e todos os arremessos retornam 0.0% de predict.
+- Descreva como podemos monitorar a saúde do modelo no cenário com e sem a disponibilidade da variável resposta para o modelo em operação.
+  - Com variável resposta:
+    - Podemos calcular métricas (log loss, F1) periodicamente, comparando com metas estabelecidas. Se cair muito => ALERTA.
+  - Sem variável resposta:
+    - Usamos técnicas de detecção de drift, como Population Stability Index (PSI) ou KL Divergence, etc.
+    - Se a distribuição dos dados mudar muito, pode sinalizar perda de performance.
+- Descreva as estratégias reativa e preditiva de retreinamento para o modelo em operação.
+  - Reativa
+    - Esperar a métrica cair para só então disparar um retreinamento.
+    - O modelo pode ficar defasado, mas é simples de implementar
+  - Preditiva
+    - Tenta antecipar a mudança no comportamento dos dados e agendar retreinamentos periodicamente
+    - Registrar históricos de drifts, para um possível ajuste sazonal
 
-6. Dashboard de monitoramento
-- App streamlit que mostra métricas atuais do modelo
-- Versionado em src/kobe_shots_analysis/visualization/
+6. Dashboard
+- App streamlit
+- Versionado em app/
 
 ## Como Executar
 
@@ -66,9 +83,14 @@ pip install -r requirements.txt
 kedro run
 ```
 
-3. Iniciar o dashboard:
+3. Servir o modelo via MLFlow:
 ```bash
-streamlit run src/kobe_shot_analysis/visualization/dashboard.py
+mlflow models serve -m models:/treinamento_logistical_regression/1 --env-manager=local --port=5001
+```
+
+3. Iniciar a aplicação para novas inferências:
+```bash
+streamlit run app/main.py
 ```
 
 ## Rules and guidelines
@@ -79,35 +101,6 @@ In order to get the best out of the template:
 * Make sure your results can be reproduced by following a data engineering convention
 * Don't commit data to your repository
 * Don't commit any credentials or your local configuration to your repository. Keep all your credentials and local configuration in `conf/local/`
-
-## How to install dependencies
-
-Declare any dependencies in `requirements.txt` for `pip` installation.
-
-To install them, run:
-
-```
-pip install -r requirements.txt
-```
-
-## How to run your Kedro pipeline
-
-You can run your Kedro project with:
-
-```
-kedro run
-```
-
-## How to test your Kedro project
-
-Have a look at the file `src/tests/test_run.py` for instructions on how to write your tests. You can run your tests as follows:
-
-```
-pytest
-```
-
-You can configure the coverage threshold in your project's `pyproject.toml` file under the `[tool.coverage.report]` section.
-
 
 ## Project dependencies
 
